@@ -9,6 +9,7 @@ import time
 tabela = pd.read_excel('contatos.xlsx', engine='openpyxl')
 
 options = webdriver.ChromeOptions()
+options.add_argument("--start-maximized")
 
 chrome_driver_path = './drivers/chromedriver.exe'
 
@@ -35,36 +36,52 @@ for index, contato in tabela.iterrows():
     ActionChains(driver).send_keys(Keys.ENTER).perform()
     time.sleep(1)
 
-    # Anexar Mídia
-    attach_button = driver.find_element("xpath", "//div[@title='Anexar']")
-    attach_button.click()
-
     # Adicione o caminho do arquivo de mídia desejado
-    media_path = r'C:\Users\Alexandre\Pictures\minhafoto.jpg'
+    media_path = contato["caminho_arquivo"]
 
-    # Localize o botão de upload de arquivo
-    upload_input = driver.find_element("xpath", "//input[@accept='image/*,video/mp4,video/3gpp,video/quicktime']")
+    if pd.isna(media_path):
+        send_box = driver.find_element("xpath", "//div[@class='to2l77zo gfz4du6o ag5g9lrv bze30y65 kao4egtt']")
 
-    # Envie o caminho do arquivo
-    upload_input.send_keys(media_path)
+        # Mensagem para o contato
+        send_term = "Mensagem para {}".format(contato['nome'])
 
-    # Aguarde o upload da mídia
-    time.sleep(2)
+        ActionChains(driver).send_keys_to_element(send_box, send_term).perform()
 
-    send_box = driver.find_element("xpath", "//div[@class='to2l77zo gfz4du6o ag5g9lrv fe5nidar kao4egtt']")
+        time.sleep(2)
 
-    # Mensagem para o contato
-    send_term = "Mensagem para {}".format(contato['nome'])
+        # Pressione Enter para enviar a mensagem
+        ActionChains(driver).send_keys(Keys.ENTER).perform()
 
-    ActionChains(driver).send_keys_to_element(send_box, send_term).perform()
+        # Aguarde um tempo antes de prosseguir para o próximo contato
+        time.sleep(2)
+    else:
+         # Anexar Mídia
+        time.sleep(1)
+        attach_button = driver.find_element("xpath", "//div[@title='Anexar']")
+        attach_button.click()
+        # Localize o botão de upload de arquivo
+        upload_input = driver.find_element("xpath", "//input[@accept='image/*,video/mp4,video/3gpp,video/quicktime']")
 
-    time.sleep(2)
+        # Envie o caminho do arquivo
+        upload_input.send_keys(media_path)
 
-    # Pressione Enter para enviar a mensagem
-    ActionChains(driver).send_keys(Keys.ENTER).perform()
+        # Aguarde o upload da mídia
+        time.sleep(2)
 
-    # Aguarde um tempo antes de prosseguir para o próximo contato
-    time.sleep(2)
+        send_box = driver.find_element("xpath", "//div[@class='to2l77zo gfz4du6o ag5g9lrv fe5nidar kao4egtt']")
+
+        # Mensagem para o contato
+        send_term = "Mensagem para {}".format(contato['nome'])
+
+        ActionChains(driver).send_keys_to_element(send_box, send_term).perform()
+
+        time.sleep(2)
+
+        # Pressione Enter para enviar a mensagem
+        ActionChains(driver).send_keys(Keys.ENTER).perform()
+
+        # Aguarde um tempo antes de prosseguir para o próximo contato
+        time.sleep(2)
 
 # Feche o navegador após enviar para todos os contatos
 time.sleep(2000000)
